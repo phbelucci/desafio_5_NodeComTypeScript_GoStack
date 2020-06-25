@@ -16,8 +16,12 @@ class CreateTransactionService {
 
   public execute({ title, value, type }: Request): Transaction {
     const transaction = this.transactionsRepository.create({
-      title, date: appointmentDate
-    })
+      title,
+      value,
+      type,
+    });
+
+    return transaction;
   }
 }
 

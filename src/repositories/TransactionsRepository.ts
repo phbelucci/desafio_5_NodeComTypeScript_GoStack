@@ -1,3 +1,4 @@
+/* eslint-disable no-return-assign */
 import Transaction from '../models/Transaction';
 import CreateTransactionService from '../services/CreateTransactionService';
 
@@ -21,14 +22,52 @@ class TransactionsRepository {
   }
 
   public all(): Transaction[] {
-    return this.transactions;
+
+    const income = this.transactions.reduce((total, elemento) => {
+      if (elemento.type === 'income') return (total += elemento.value);
+      return total},0);
+
+    const outcome = this.transactions.reduce((total, elemento) => {
+      if (elemento.type === 'outcome') return (total += elemento.value);
+      return total},0);
+
+    const result = this.getBalance({ income, outcome });
+
+    return [this.transactions, result];
   }
 
-  public getBalance(): Balance {
-
+  // eslint-disable-next-line class-methods-use-this
+  public getBalance({ income, outcome }: Omit<Balance, 'total'>): Balance {
+    const result = income - outcome;
+    const balance = {
+      income,
+      outcome,
+      total: result,
+    };
+    return balance;
   }
 
   public create({ title, value, type }: CreateTransaction): Transaction {
+    if (type === 'income') {
+      const transaction = new Transaction({ title, value, type });
+      this.transactions.push(transaction);
+      return transaction;
+    };
+
+    const income = this.transactions.reduce((total, elemento) => {
+      if (elemento.type === 'income') return (total += elemento.value);
+      return total},0);
+
+    const outcome = this.transactions.reduce((total, elemento) => {
+      if (elemento.type === 'outcome') return (total += elemento.value);
+      return total},0);
+
+    const result = this.getBalance({ income, outcome });
+
+    if (result.total < value) {
+      throw Error('You can´t get the outcome transaction!');
+    }
+
     const transaction = new Transaction({ title, value, type });
     this.transactions.push(transaction);
     return transaction;
