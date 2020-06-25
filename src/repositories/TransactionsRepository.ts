@@ -21,8 +21,7 @@ class TransactionsRepository {
     this.transactions = [];
   }
 
-  public all(): Transaction[] {
-
+  public all() {
     const income = this.transactions.reduce((total, elemento) => {
       if (elemento.type === 'income') return (total += elemento.value);
       return total},0);
@@ -31,9 +30,9 @@ class TransactionsRepository {
       if (elemento.type === 'outcome') return (total += elemento.value);
       return total},0);
 
-    const result = this.getBalance({ income, outcome });
+    const result: Balance = this.getBalance({ income, outcome });
 
-    return [this.transactions, result];
+    return ({ transactions: this.transactions, balance: result });
   }
 
   // eslint-disable-next-line class-methods-use-this
